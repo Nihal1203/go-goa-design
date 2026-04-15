@@ -10,28 +10,24 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	user "github.com/Nihal1203/go-goa-design/gen/user"
 )
 
-// BuildPrintPersonPayload builds the payload for the user printPerson endpoint
+// BuildGetPersonPayload builds the payload for the user getPerson endpoint
 // from CLI flags.
-func BuildPrintPersonPayload(userPrintPersonBody string) (*user.Person, error) {
+func BuildGetPersonPayload(userGetPersonID string) (*user.GetPersonPayload, error) {
 	var err error
-	var body PrintPersonRequestBody
+	var id int64
 	{
-		err = json.Unmarshal([]byte(userPrintPersonBody), &body)
+		id, err = strconv.ParseInt(userGetPersonID, 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"age\": 962588955710604653,\n      \"email\": \"eva@olsonkuhlman.com\",\n      \"id\": 7578785269693231749,\n      \"mobileNo\": \"Temporibus occaecati suscipit aspernatur.\",\n      \"name\": \"Quis aspernatur expedita molestias et iure neque.\"\n   }'")
+			return nil, fmt.Errorf("invalid value for id, must be INT64")
 		}
 	}
-	v := &user.Person{
-		Name:     body.Name,
-		Age:      body.Age,
-		MobileNo: body.MobileNo,
-		Email:    body.Email,
-		ID:       body.ID,
-	}
+	v := &user.GetPersonPayload{}
+	v.ID = id
 
 	return v, nil
 }
@@ -44,7 +40,7 @@ func BuildAddPersonPayload(userAddPersonBody string) (*user.Person, error) {
 	{
 		err = json.Unmarshal([]byte(userAddPersonBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"age\": 868744758025898707,\n      \"email\": \"rahsaan@considine.biz\",\n      \"id\": 6799014544609854512,\n      \"mobileNo\": \"Blanditiis voluptatem distinctio sed.\",\n      \"name\": \"Praesentium harum laudantium illo consectetur ullam.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"age\": 2257263325922318254,\n      \"email\": \"mathew.zemlak@bauch.org\",\n      \"id\": 2615149549583248290,\n      \"mobileNo\": \"Ut voluptatibus corporis ullam.\",\n      \"name\": \"Explicabo natus.\"\n   }'")
 		}
 	}
 	v := &user.Person{

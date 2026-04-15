@@ -15,17 +15,17 @@ import (
 
 // Client is the "user" service client.
 type Client struct {
-	GetUserEndpoint     goa.Endpoint
-	PrintPersonEndpoint goa.Endpoint
-	AddPersonEndpoint   goa.Endpoint
+	GetUserEndpoint   goa.Endpoint
+	GetPersonEndpoint goa.Endpoint
+	AddPersonEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "user" service client given the endpoints.
-func NewClient(getUser, printPerson, addPerson goa.Endpoint) *Client {
+func NewClient(getUser, getPerson, addPerson goa.Endpoint) *Client {
 	return &Client{
-		GetUserEndpoint:     getUser,
-		PrintPersonEndpoint: printPerson,
-		AddPersonEndpoint:   addPerson,
+		GetUserEndpoint:   getUser,
+		GetPersonEndpoint: getPerson,
+		AddPersonEndpoint: addPerson,
 	}
 }
 
@@ -39,22 +39,26 @@ func (c *Client) GetUser(ctx context.Context, p string) (res string, err error) 
 	return ires.(string), nil
 }
 
-// PrintPerson calls the "printPerson" endpoint of the "user" service.
-func (c *Client) PrintPerson(ctx context.Context, p *Person) (res map[int32]*Person, err error) {
+// GetPerson calls the "getPerson" endpoint of the "user" service.
+func (c *Client) GetPerson(ctx context.Context, p *GetPersonPayload) (res *Person, err error) {
 	var ires any
-	ires, err = c.PrintPersonEndpoint(ctx, p)
+	ires, err = c.GetPersonEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(map[int32]*Person), nil
+	return ires.(*Person), nil
 }
 
 // AddPerson calls the "addPerson" endpoint of the "user" service.
-func (c *Client) AddPerson(ctx context.Context, p *Person) (res []byte, err error) {
+// AddPerson may return the following errors:
+//   - "person_already_exists" (type *PersonAlreadyExists)
+//   - "internal_error" (type *InternalError)
+//   - error: internal error
+func (c *Client) AddPerson(ctx context.Context, p *Person) (res *AddPersonResponse, err error) {
 	var ires any
 	ires, err = c.AddPersonEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.([]byte), nil
+	return ires.(*AddPersonResponse), nil
 }

@@ -16,9 +16,9 @@ func GetUserUserPath(id string) string {
 	return fmt.Sprintf("/user/%v", id)
 }
 
-// PrintPersonUserPath returns the URL path to the user service printPerson HTTP endpoint.
-func PrintPersonUserPath() string {
-	return "/printPerson"
+// GetPersonUserPath returns the URL path to the user service getPerson HTTP endpoint.
+func GetPersonUserPath(id int64) string {
+	return fmt.Sprintf("/get/Person/%v", id)
 }
 
 // AddPersonUserPath returns the URL path to the user service addPerson HTTP endpoint.

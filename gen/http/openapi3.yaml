@@ -19,69 +19,64 @@ paths:
                         schema:
                             $ref: '#/components/schemas/Person'
                         example:
-                            age: 868744758025898707
-                            email: rahsaan@considine.biz
-                            id: 6799014544609854512
-                            mobileNo: Blanditiis voluptatem distinctio sed.
-                            name: Praesentium harum laudantium illo consectetur ullam.
+                            age: 2257263325922318254
+                            email: mathew.zemlak@bauch.org
+                            id: 2615149549583248290
+                            mobileNo: Ut voluptatibus corporis ullam.
+                            name: Explicabo natus.
             responses:
                 "200":
                     description: OK response.
                     content:
                         application/json:
                             schema:
-                                type: string
-                                example:
-                                    - 81
-                                    - 117
-                                    - 111
-                                    - 100
-                                    - 32
-                                    - 101
-                                    - 115
-                                    - 116
-                                    - 32
-                                    - 118
-                                    - 101
-                                    - 114
-                                    - 111
-                                    - 32
-                                    - 112
-                                    - 97
-                                    - 114
-                                    - 105
-                                    - 97
-                                    - 116
-                                    - 117
-                                    - 114
-                                    - 32
-                                    - 101
-                                    - 115
-                                    - 116
-                                    - 46
-                                format: binary
+                                $ref: '#/components/schemas/AddPersonResponse'
                             example:
-                                - 86
-                                - 101
-                                - 108
-                                - 105
-                                - 116
-                                - 32
-                                - 97
-                                - 114
-                                - 99
-                                - 104
-                                - 105
-                                - 116
-                                - 101
-                                - 99
-                                - 116
-                                - 111
-                                - 32
-                                - 110
-                                - 97
-                                - 109
-                                - 46
+                                success: true
+                "409":
+                    description: 'person_already_exists: Conflict response.'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PersonAlreadyExists'
+                            example:
+                                message: Velit vel.
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalError'
+                            example:
+                                message: Ipsa praesentium harum laudantium illo.
+    /get/Person/{id}:
+        get:
+            tags:
+                - user
+            summary: getPerson user
+            operationId: user#getPerson
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    example: 8169631024068118047
+                    format: int64
+                  example: 2379356149953142009
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Person'
+                            example:
+                                age: 7840472617875803217
+                                email: reymundo@schaden.net
+                                id: 5538063635154939231
+                                mobileNo: In dicta.
+                                name: Dolores maiores et ea delectus.
     /hello/{name}:
         get:
             tags:
@@ -96,8 +91,8 @@ paths:
                   schema:
                     type: string
                     description: Name to greet
-                    example: Autem enim.
-                  example: Nostrum consequatur.
+                    example: Dolor est sint omnis voluptas.
+                  example: Saepe veniam rerum eius omnis.
             responses:
                 "200":
                     description: OK response.
@@ -106,55 +101,8 @@ paths:
                             schema:
                                 type: string
                                 description: A greeting message
-                                example: Placeat nihil ab ullam veniam qui.
-                            example: Commodi deleniti debitis sapiente in enim.
-    /printPerson:
-        post:
-            tags:
-                - user
-            summary: printPerson user
-            operationId: user#printPerson
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Person'
-                        example:
-                            age: 962588955710604653
-                            email: eva@olsonkuhlman.com
-                            id: 7578785269693231749
-                            mobileNo: Temporibus occaecati suscipit aspernatur.
-                            name: Quis aspernatur expedita molestias et iure neque.
-            responses:
-                "200":
-                    description: OK response.
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                example:
-                                    1869668876:
-                                        age: 6548943031786787644
-                                        email: millie@schuster.name
-                                        id: 7486465580686565503
-                                        mobileNo: Dolorem deserunt.
-                                        name: Consequatur aut consequuntur sed.
-                                additionalProperties:
-                                    $ref: '#/components/schemas/Person'
-                            example:
-                                94527046:
-                                    age: 6548943031786787644
-                                    email: millie@schuster.name
-                                    id: 7486465580686565503
-                                    mobileNo: Dolorem deserunt.
-                                    name: Consequatur aut consequuntur sed.
-                                156694314:
-                                    age: 6548943031786787644
-                                    email: millie@schuster.name
-                                    id: 7486465580686565503
-                                    mobileNo: Dolorem deserunt.
-                                    name: Consequatur aut consequuntur sed.
+                                example: Iure ratione eaque.
+                            example: Eum nihil mollitia.
     /user/{id}:
         get:
             tags:
@@ -167,8 +115,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Est magnam nisi.
-                  example: Consequatur fugit.
+                    example: Omnis eveniet quaerat recusandae molestiae.
+                  example: Nihil ab.
             responses:
                 "200":
                     description: OK response.
@@ -176,38 +124,71 @@ paths:
                         application/json:
                             schema:
                                 type: string
-                                example: Velit enim atque doloribus rerum cupiditate consectetur.
-                            example: Molestias culpa tenetur.
+                                example: Est sed eum facere.
+                            example: Veniam qui sed velit.
 components:
     schemas:
+        AddPersonResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    example: false
+            description: Add person success response
+            example:
+                success: true
+            required:
+                - success
+        InternalError:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: Incidunt ullam pariatur perspiciatis ea cupiditate aut.
+            description: Internal server error
+            example:
+                message: Sint laudantium et et voluptates eligendi quae.
+            required:
+                - message
         Person:
             type: object
             properties:
                 age:
                     type: integer
-                    example: 5111042497677084498
+                    example: 5102190061941605345
                     format: int64
                 email:
                     type: string
-                    example: alejandra.stamm@quigley.com
+                    example: antoinette@armstrong.biz
                     format: email
                 id:
                     type: integer
-                    example: 5305863361400602543
+                    example: 3341138605895188869
                     format: int64
                 mobileNo:
                     type: string
-                    example: Libero est aspernatur qui enim.
+                    example: Et nemo nemo libero iste.
                 name:
                     type: string
-                    example: Dignissimos sapiente veniam voluptatum aut magni vitae.
+                    example: Voluptatem expedita ut voluptas molestiae ut voluptate.
             description: Person struct
             example:
-                age: 535486291330675518
-                email: lue_goyette@gleichner.biz
-                id: 6438104226857935592
-                mobileNo: Voluptatem cumque ut.
-                name: Earum repellendus autem sed quo.
+                age: 1600021641059124980
+                email: summer@faheyokeefe.biz
+                id: 9014746181237509154
+                mobileNo: Nisi error aut.
+                name: Qui repudiandae officia nostrum qui quia facilis.
+        PersonAlreadyExists:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: Eius odio cupiditate.
+            description: Person already exists
+            example:
+                message: At aut.
+            required:
+                - message
 tags:
     - name: hello
       description: A simple service that says hello.

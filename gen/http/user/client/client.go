@@ -21,9 +21,9 @@ type Client struct {
 	// endpoint.
 	GetUserDoer goahttp.Doer
 
-	// PrintPerson Doer is the HTTP client used to make requests to the printPerson
+	// GetPerson Doer is the HTTP client used to make requests to the getPerson
 	// endpoint.
-	PrintPersonDoer goahttp.Doer
+	GetPersonDoer goahttp.Doer
 
 	// AddPerson Doer is the HTTP client used to make requests to the addPerson
 	// endpoint.
@@ -50,7 +50,7 @@ func NewClient(
 ) *Client {
 	return &Client{
 		GetUserDoer:         doer,
-		PrintPersonDoer:     doer,
+		GetPersonDoer:       doer,
 		AddPersonDoer:       doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -79,25 +79,20 @@ func (c *Client) GetUser() goa.Endpoint {
 	}
 }
 
-// PrintPerson returns an endpoint that makes HTTP requests to the user service
-// printPerson server.
-func (c *Client) PrintPerson() goa.Endpoint {
+// GetPerson returns an endpoint that makes HTTP requests to the user service
+// getPerson server.
+func (c *Client) GetPerson() goa.Endpoint {
 	var (
-		encodeRequest  = EncodePrintPersonRequest(c.encoder)
-		decodeResponse = DecodePrintPersonResponse(c.decoder, c.RestoreResponseBody)
+		decodeResponse = DecodeGetPersonResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildPrintPersonRequest(ctx, v)
+		req, err := c.BuildGetPersonRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
-		err = encodeRequest(req, v)
+		resp, err := c.GetPersonDoer.Do(req)
 		if err != nil {
-			return nil, err
-		}
-		resp, err := c.PrintPersonDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("user", "printPerson", err)
+			return nil, goahttp.ErrRequestError("user", "getPerson", err)
 		}
 		return decodeResponse(resp)
 	}

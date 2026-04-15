@@ -15,10 +15,10 @@ import (
 type Service interface {
 	// GetUser implements getUser.
 	GetUser(context.Context, string) (res string, err error)
-	// PrintPerson implements printPerson.
-	PrintPerson(context.Context, *Person) (res map[int32]*Person, err error)
+	// GetPerson implements getPerson.
+	GetPerson(context.Context, *GetPersonPayload) (res *Person, err error)
 	// AddPerson implements addPerson.
-	AddPerson(context.Context, *Person) (res []byte, err error)
+	AddPerson(context.Context, *Person) (res *AddPersonResponse, err error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -35,13 +35,67 @@ const ServiceName = "user"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [3]string{"getUser", "printPerson", "addPerson"}
+var MethodNames = [3]string{"getUser", "getPerson", "addPerson"}
 
-// Person is the payload type of the user service printPerson method.
+// AddPersonResponse is the result type of the user service addPerson method.
+type AddPersonResponse struct {
+	Success bool
+}
+
+// GetPersonPayload is the payload type of the user service getPerson method.
+type GetPersonPayload struct {
+	ID int64
+}
+
+// Internal server error
+type InternalError struct {
+	Message string
+}
+
+// Person is the result type of the user service getPerson method.
 type Person struct {
 	Name     *string
 	Age      *int64
 	MobileNo *string
 	Email    *string
 	ID       *int64
+}
+
+// Person already exists
+type PersonAlreadyExists struct {
+	Message string
+}
+
+// Error returns an error description.
+func (e *InternalError) Error() string {
+	return "Internal server error"
+}
+
+// ErrorName returns the error name.
+//
+// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
+func (e *InternalError) ErrorName() string {
+	return e.GoaErrorName()
+}
+
+// GoaErrorName returns the error name.
+func (e *InternalError) GoaErrorName() string {
+	return "internal_error"
+}
+
+// Error returns an error description.
+func (e *PersonAlreadyExists) Error() string {
+	return "Person already exists"
+}
+
+// ErrorName returns the error name.
+//
+// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
+func (e *PersonAlreadyExists) ErrorName() string {
+	return e.GoaErrorName()
+}
+
+// GoaErrorName returns the error name.
+func (e *PersonAlreadyExists) GoaErrorName() string {
+	return "person_already_exists"
 }

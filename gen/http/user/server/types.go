@@ -12,16 +12,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// PrintPersonRequestBody is the type of the "user" service "printPerson"
-// endpoint HTTP request body.
-type PrintPersonRequestBody struct {
-	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	Age      *int64  `form:"age,omitempty" json:"age,omitempty" xml:"age,omitempty"`
-	MobileNo *string `form:"mobileNo,omitempty" json:"mobileNo,omitempty" xml:"mobileNo,omitempty"`
-	Email    *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
-	ID       *int64  `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-}
-
 // AddPersonRequestBody is the type of the "user" service "addPerson" endpoint
 // HTTP request body.
 type AddPersonRequestBody struct {
@@ -32,12 +22,9 @@ type AddPersonRequestBody struct {
 	ID       *int64  `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// PrintPersonResponseBody is the type of the "user" service "printPerson"
-// endpoint HTTP response body.
-type PrintPersonResponseBody map[int32]*PersonResponse
-
-// PersonResponse is used to define fields on response body types.
-type PersonResponse struct {
+// GetPersonResponseBody is the type of the "user" service "getPerson" endpoint
+// HTTP response body.
+type GetPersonResponseBody struct {
 	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	Age      *int64  `form:"age,omitempty" json:"age,omitempty" xml:"age,omitempty"`
 	MobileNo *string `form:"mobileNo,omitempty" json:"mobileNo,omitempty" xml:"mobileNo,omitempty"`
@@ -45,30 +32,69 @@ type PersonResponse struct {
 	ID       *int64  `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// NewPrintPersonResponseBody builds the HTTP response body from the result of
-// the "printPerson" endpoint of the "user" service.
-func NewPrintPersonResponseBody(res map[int32]*user.Person) PrintPersonResponseBody {
-	body := make(map[int32]*PersonResponse, len(res))
-	for key, val := range res {
-		tk := key
-		if val == nil {
-			body[tk] = nil
-			continue
-		}
-		body[tk] = marshalUserPersonToPersonResponse(val)
+// AddPersonResponseBody is the type of the "user" service "addPerson" endpoint
+// HTTP response body.
+type AddPersonResponseBody struct {
+	Success bool `form:"success" json:"success" xml:"success"`
+}
+
+// AddPersonInternalErrorResponseBody is the type of the "user" service
+// "addPerson" endpoint HTTP response body for the "internal_error" error.
+type AddPersonInternalErrorResponseBody struct {
+	Message string `form:"message" json:"message" xml:"message"`
+}
+
+// AddPersonPersonAlreadyExistsResponseBody is the type of the "user" service
+// "addPerson" endpoint HTTP response body for the "person_already_exists"
+// error.
+type AddPersonPersonAlreadyExistsResponseBody struct {
+	Message string `form:"message" json:"message" xml:"message"`
+}
+
+// NewGetPersonResponseBody builds the HTTP response body from the result of
+// the "getPerson" endpoint of the "user" service.
+func NewGetPersonResponseBody(res *user.Person) *GetPersonResponseBody {
+	body := &GetPersonResponseBody{
+		Name:     res.Name,
+		Age:      res.Age,
+		MobileNo: res.MobileNo,
+		Email:    res.Email,
+		ID:       res.ID,
 	}
 	return body
 }
 
-// NewPrintPersonPerson builds a user service printPerson endpoint payload.
-func NewPrintPersonPerson(body *PrintPersonRequestBody) *user.Person {
-	v := &user.Person{
-		Name:     body.Name,
-		Age:      body.Age,
-		MobileNo: body.MobileNo,
-		Email:    body.Email,
-		ID:       body.ID,
+// NewAddPersonResponseBody builds the HTTP response body from the result of
+// the "addPerson" endpoint of the "user" service.
+func NewAddPersonResponseBody(res *user.AddPersonResponse) *AddPersonResponseBody {
+	body := &AddPersonResponseBody{
+		Success: res.Success,
 	}
+	return body
+}
+
+// NewAddPersonInternalErrorResponseBody builds the HTTP response body from the
+// result of the "addPerson" endpoint of the "user" service.
+func NewAddPersonInternalErrorResponseBody(res *user.InternalError) *AddPersonInternalErrorResponseBody {
+	body := &AddPersonInternalErrorResponseBody{
+		Message: res.Message,
+	}
+	return body
+}
+
+// NewAddPersonPersonAlreadyExistsResponseBody builds the HTTP response body
+// from the result of the "addPerson" endpoint of the "user" service.
+func NewAddPersonPersonAlreadyExistsResponseBody(res *user.PersonAlreadyExists) *AddPersonPersonAlreadyExistsResponseBody {
+	body := &AddPersonPersonAlreadyExistsResponseBody{
+		Message: res.Message,
+	}
+	return body
+}
+
+// NewGetPersonPayload builds a user service getPerson endpoint payload.
+func NewGetPersonPayload(id int64) *user.GetPersonPayload {
+	v := &user.GetPersonPayload{}
+	v.ID = id
 
 	return v
 }
@@ -84,15 +110,6 @@ func NewAddPersonPerson(body *AddPersonRequestBody) *user.Person {
 	}
 
 	return v
-}
-
-// ValidatePrintPersonRequestBody runs the validations defined on
-// PrintPersonRequestBody
-func ValidatePrintPersonRequestBody(body *PrintPersonRequestBody) (err error) {
-	if body.Email != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.email", *body.Email, goa.FormatEmail))
-	}
-	return
 }
 
 // ValidateAddPersonRequestBody runs the validations defined on

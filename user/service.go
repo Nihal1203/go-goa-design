@@ -31,22 +31,26 @@ func (u *Service) PrintPerson(ctx context.Context, p *userpackage.Person) (res m
 	return m, nil
 }
 
-func (u *Service) AddPerson(ctx context.Context, p *userpackage.Person) ([]byte, error) {
+func (u *Service) AddPerson(ctx context.Context, p *userpackage.Person) (*userpackage.AddPersonResponse, error) {
 
-	// Step 1: Check if person already exists (by email)
+	// Step 1: Check if person already exists
 	checkQuery := `SELECT id FROM persons WHERE email = $1`
 
 	var existingID int64
 	err := u.db.QueryRow(ctx, checkQuery, p.Email).Scan(&existingID)
 
 	if err != nil && err != pgx.ErrNoRows {
-		// Some real DB error occurred
-		return nil, fmt.Errorf("failed to check existing person: %w", err)
+		// Internal DB error
+		return nil, &userpackage.InternalError{
+			Message: fmt.Sprintf("failed to check existing person: %v", err),
+		}
 	}
 
 	if err == nil {
 		// Person already exists
-		return nil, fmt.Errorf("person with email %s already exists with id %d", *p.Email, existingID)
+		return nil, &userpackage.PersonAlreadyExists{
+			Message: fmt.Sprintf("person with email %s already exists with id %d", *p.Email, existingID),
+		}
 	}
 
 	// Step 2: Insert new person
@@ -65,10 +69,55 @@ func (u *Service) AddPerson(ctx context.Context, p *userpackage.Person) ([]byte,
 	).Scan(&newID)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to insert person: %w", err)
+		return nil, &userpackage.InternalError{
+			Message: fmt.Sprintf("failed to insert person: %v", err),
+		}
 	}
 
-	// Step 3: Return response as bytes
-	response := fmt.Sprintf(`{"message": "person added successfully", "id": %d}`, newID)
-	return []byte(response), nil
+	// Step 3: Success
+	return &userpackage.AddPersonResponse{
+		Success: true,
+	}, nil
+}
+
+func (u *Service) GetPerson(ctx context.Context, payload *userpackage.GetPersonPayload) (*userpackage.Person, error) {
+
+	query := `SELECT id, name, age, mobile_no, email FROM persons WHERE id=$1`
+
+	var (
+		id       int64
+		name     string
+		age      int64
+		mobile   string
+		email    string
+	)
+
+	err := u.db.QueryRow(ctx, query, payload.ID).Scan(
+		&id,
+		&name,
+		&age,
+		&mobile,
+		&email,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, &userpackage.InternalError{
+				Message: "person not found",
+			}
+		}
+
+		return nil, &userpackage.InternalError{
+			Message: fmt.Sprintf("db error: %v", err),
+		}
+	}
+
+	// convert to Goa type (pointer fields)
+	return &userpackage.Person{
+		ID:       &id,
+		Name:     &name,
+		Age:      &age,
+		MobileNo: &mobile,
+		Email:    &email,
+	}, nil
 }

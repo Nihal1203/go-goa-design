@@ -15,24 +15,24 @@ import (
 
 // Endpoints wraps the "user" service endpoints.
 type Endpoints struct {
-	GetUser     goa.Endpoint
-	PrintPerson goa.Endpoint
-	AddPerson   goa.Endpoint
+	GetUser   goa.Endpoint
+	GetPerson goa.Endpoint
+	AddPerson goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "user" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		GetUser:     NewGetUserEndpoint(s),
-		PrintPerson: NewPrintPersonEndpoint(s),
-		AddPerson:   NewAddPersonEndpoint(s),
+		GetUser:   NewGetUserEndpoint(s),
+		GetPerson: NewGetPersonEndpoint(s),
+		AddPerson: NewAddPersonEndpoint(s),
 	}
 }
 
 // Use applies the given middleware to all the "user" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.GetUser = m(e.GetUser)
-	e.PrintPerson = m(e.PrintPerson)
+	e.GetPerson = m(e.GetPerson)
 	e.AddPerson = m(e.AddPerson)
 }
 
@@ -45,12 +45,12 @@ func NewGetUserEndpoint(s Service) goa.Endpoint {
 	}
 }
 
-// NewPrintPersonEndpoint returns an endpoint function that calls the method
-// "printPerson" of service "user".
-func NewPrintPersonEndpoint(s Service) goa.Endpoint {
+// NewGetPersonEndpoint returns an endpoint function that calls the method
+// "getPerson" of service "user".
+func NewGetPersonEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*Person)
-		return s.PrintPerson(ctx, p)
+		p := req.(*GetPersonPayload)
+		return s.GetPerson(ctx, p)
 	}
 }
 

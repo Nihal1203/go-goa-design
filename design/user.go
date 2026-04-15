@@ -14,21 +14,32 @@ var _ = Service("user", func() {
 		})
 	})
 
-	Method("printPerson", func() {
-		Payload(Person)
-		Result(ConfigMap)
+	Method("getPerson", func() {
+		Payload(func(){
+			Field(1,"id",Int64)
+			Required("id")
+		})
+		Result(Person)
 		HTTP(func() {
-			POST("/printPerson")
+			GET("/get/Person/{id}")
 		})
 	})
 
 	Method("addPerson", func() {
-		Payload(Person)
-		Result(Bytes)
-		HTTP(func() {
-			POST("/add/person")
-		})
+	Payload(Person)
+	Result(AddPersonResponse)
+
+	Error("person_already_exists", PersonAlreadyExists)
+	Error("internal_error", InternalError)
+
+	HTTP(func() {
+		POST("/add/person")
+
+		Response(StatusOK) // success
+		Response("person_already_exists", StatusConflict)
+		Response("internal_error", StatusInternalServerError)
 	})
+})
 })
 
 var Person = Type("Person", func() {
@@ -45,4 +56,25 @@ var Person = Type("Person", func() {
 
 var ConfigMap = MapOf(Int32, Person, func() {
 
+})
+
+var AddPersonResponse = Type("AddPersonResponse", func() {
+	Description("Add person success response")
+
+	Field(1, "success", Boolean)
+	Required("success")
+})
+
+var PersonAlreadyExists = Type("PersonAlreadyExists", func() {
+	Description("Person already exists")
+
+	Field(1, "message", String)
+	Required("message")
+})
+
+var InternalError = Type("InternalError", func() {
+	Description("Internal server error")
+
+	Field(1, "message", String)
+	Required("message")
 })

@@ -18,10 +18,10 @@ import (
 
 // Server lists the user service endpoint HTTP handlers.
 type Server struct {
-	Mounts      []*MountPoint
-	GetUser     http.Handler
-	PrintPerson http.Handler
-	AddPerson   http.Handler
+	Mounts    []*MountPoint
+	GetUser   http.Handler
+	GetPerson http.Handler
+	AddPerson http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -52,12 +52,12 @@ func New(
 	return &Server{
 		Mounts: []*MountPoint{
 			{"GetUser", "GET", "/user/{id}"},
-			{"PrintPerson", "POST", "/printPerson"},
+			{"GetPerson", "GET", "/get/Person/{id}"},
 			{"AddPerson", "POST", "/add/person"},
 		},
-		GetUser:     NewGetUserHandler(e.GetUser, mux, decoder, encoder, errhandler, formatter),
-		PrintPerson: NewPrintPersonHandler(e.PrintPerson, mux, decoder, encoder, errhandler, formatter),
-		AddPerson:   NewAddPersonHandler(e.AddPerson, mux, decoder, encoder, errhandler, formatter),
+		GetUser:   NewGetUserHandler(e.GetUser, mux, decoder, encoder, errhandler, formatter),
+		GetPerson: NewGetPersonHandler(e.GetPerson, mux, decoder, encoder, errhandler, formatter),
+		AddPerson: NewAddPersonHandler(e.AddPerson, mux, decoder, encoder, errhandler, formatter),
 	}
 }
 
@@ -67,7 +67,7 @@ func (s *Server) Service() string { return "user" }
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.GetUser = m(s.GetUser)
-	s.PrintPerson = m(s.PrintPerson)
+	s.GetPerson = m(s.GetPerson)
 	s.AddPerson = m(s.AddPerson)
 }
 
@@ -77,7 +77,7 @@ func (s *Server) MethodNames() []string { return user.MethodNames[:] }
 // Mount configures the mux to serve the user endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountGetUserHandler(mux, h.GetUser)
-	MountPrintPersonHandler(mux, h.PrintPerson)
+	MountGetPersonHandler(mux, h.GetPerson)
 	MountAddPersonHandler(mux, h.AddPerson)
 }
 
@@ -139,21 +139,21 @@ func NewGetUserHandler(
 	})
 }
 
-// MountPrintPersonHandler configures the mux to serve the "user" service
-// "printPerson" endpoint.
-func MountPrintPersonHandler(mux goahttp.Muxer, h http.Handler) {
+// MountGetPersonHandler configures the mux to serve the "user" service
+// "getPerson" endpoint.
+func MountGetPersonHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := h.(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/printPerson", f)
+	mux.Handle("GET", "/get/Person/{id}", f)
 }
 
-// NewPrintPersonHandler creates a HTTP handler which loads the HTTP request
-// and calls the "user" service "printPerson" endpoint.
-func NewPrintPersonHandler(
+// NewGetPersonHandler creates a HTTP handler which loads the HTTP request and
+// calls the "user" service "getPerson" endpoint.
+func NewGetPersonHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -162,13 +162,13 @@ func NewPrintPersonHandler(
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		decodeRequest  = DecodePrintPersonRequest(mux, decoder)
-		encodeResponse = EncodePrintPersonResponse(encoder)
+		decodeRequest  = DecodeGetPersonRequest(mux, decoder)
+		encodeResponse = EncodeGetPersonResponse(encoder)
 		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "printPerson")
+		ctx = context.WithValue(ctx, goa.MethodKey, "getPerson")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "user")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -217,7 +217,7 @@ func NewAddPersonHandler(
 	var (
 		decodeRequest  = DecodeAddPersonRequest(mux, decoder)
 		encodeResponse = EncodeAddPersonResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeAddPersonError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
