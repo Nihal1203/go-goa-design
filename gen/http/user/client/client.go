@@ -21,6 +21,14 @@ type Client struct {
 	// endpoint.
 	GetUserDoer goahttp.Doer
 
+	// PrintPerson Doer is the HTTP client used to make requests to the printPerson
+	// endpoint.
+	PrintPersonDoer goahttp.Doer
+
+	// AddPerson Doer is the HTTP client used to make requests to the addPerson
+	// endpoint.
+	AddPersonDoer goahttp.Doer
+
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
 	RestoreResponseBody bool
@@ -42,6 +50,8 @@ func NewClient(
 ) *Client {
 	return &Client{
 		GetUserDoer:         doer,
+		PrintPersonDoer:     doer,
+		AddPersonDoer:       doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
@@ -64,6 +74,54 @@ func (c *Client) GetUser() goa.Endpoint {
 		resp, err := c.GetUserDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("user", "getUser", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// PrintPerson returns an endpoint that makes HTTP requests to the user service
+// printPerson server.
+func (c *Client) PrintPerson() goa.Endpoint {
+	var (
+		encodeRequest  = EncodePrintPersonRequest(c.encoder)
+		decodeResponse = DecodePrintPersonResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildPrintPersonRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.PrintPersonDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("user", "printPerson", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// AddPerson returns an endpoint that makes HTTP requests to the user service
+// addPerson server.
+func (c *Client) AddPerson() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeAddPersonRequest(c.encoder)
+		decodeResponse = DecodeAddPersonResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildAddPersonRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.AddPersonDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("user", "addPerson", err)
 		}
 		return decodeResponse(resp)
 	}

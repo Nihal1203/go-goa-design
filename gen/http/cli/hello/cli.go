@@ -25,14 +25,14 @@ import (
 func UsageCommands() []string {
 	return []string{
 		"hello say-hello",
-		"user get-user",
+		"user (get-user|print-person|add-person)",
 	}
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + " " + "hello say-hello --p \"Excepturi ad sed atque.\"" + "\n" +
-		os.Args[0] + " " + "user get-user --p \"Voluptatem voluptatibus itaque omnis.\"" + "\n" +
+	return os.Args[0] + " " + "hello say-hello --p \"Quas dolor id assumenda nobis qui est.\"" + "\n" +
+		os.Args[0] + " " + "user get-user --p \"Sunt facere et et.\"" + "\n" +
 		""
 }
 
@@ -55,12 +55,20 @@ func ParseEndpoint(
 
 		userGetUserFlags = flag.NewFlagSet("get-user", flag.ExitOnError)
 		userGetUserPFlag = userGetUserFlags.String("p", "REQUIRED", "string is the payload type of the user service getUser method.")
+
+		userPrintPersonFlags    = flag.NewFlagSet("print-person", flag.ExitOnError)
+		userPrintPersonBodyFlag = userPrintPersonFlags.String("body", "REQUIRED", "")
+
+		userAddPersonFlags    = flag.NewFlagSet("add-person", flag.ExitOnError)
+		userAddPersonBodyFlag = userAddPersonFlags.String("body", "REQUIRED", "")
 	)
 	helloFlags.Usage = helloUsage
 	helloSayHelloFlags.Usage = helloSayHelloUsage
 
 	userFlags.Usage = userUsage
 	userGetUserFlags.Usage = userGetUserUsage
+	userPrintPersonFlags.Usage = userPrintPersonUsage
+	userAddPersonFlags.Usage = userAddPersonUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -108,6 +116,12 @@ func ParseEndpoint(
 			case "get-user":
 				epf = userGetUserFlags
 
+			case "print-person":
+				epf = userPrintPersonFlags
+
+			case "add-person":
+				epf = userAddPersonFlags
+
 			}
 
 		}
@@ -143,6 +157,12 @@ func ParseEndpoint(
 			case "get-user":
 				endpoint = c.GetUser()
 				data = *userGetUserPFlag
+			case "print-person":
+				endpoint = c.PrintPerson()
+				data, err = userc.BuildPrintPersonPayload(*userPrintPersonBodyFlag)
+			case "add-person":
+				endpoint = c.AddPerson()
+				data, err = userc.BuildAddPersonPayload(*userAddPersonBodyFlag)
 			}
 		}
 	}
@@ -178,7 +198,7 @@ func helloSayHelloUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "hello say-hello --p \"Excepturi ad sed atque.\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "hello say-hello --p \"Quas dolor id assumenda nobis qui est.\"")
 }
 
 // userUsage displays the usage of the user command and its subcommands.
@@ -187,6 +207,8 @@ func userUsage() {
 	fmt.Fprintf(os.Stderr, "Usage:\n    %s [globalflags] user COMMAND [flags]\n\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "COMMAND:")
 	fmt.Fprintln(os.Stderr, `    get-user: GetUser implements getUser.`)
+	fmt.Fprintln(os.Stderr, `    print-person: PrintPerson implements printPerson.`)
+	fmt.Fprintln(os.Stderr, `    add-person: AddPerson implements addPerson.`)
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Additional help:")
 	fmt.Fprintf(os.Stderr, "    %s user COMMAND --help\n", os.Args[0])
@@ -206,5 +228,41 @@ func userGetUserUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user get-user --p \"Voluptatem voluptatibus itaque omnis.\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user get-user --p \"Sunt facere et et.\"")
+}
+
+func userPrintPersonUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] user print-person", os.Args[0])
+	fmt.Fprint(os.Stderr, " -body JSON")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `PrintPerson implements printPerson.`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -body JSON: `)
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user print-person --body '{\n      \"age\": 962588955710604653,\n      \"email\": \"eva@olsonkuhlman.com\",\n      \"id\": 7578785269693231749,\n      \"mobileNo\": \"Temporibus occaecati suscipit aspernatur.\",\n      \"name\": \"Quis aspernatur expedita molestias et iure neque.\"\n   }'")
+}
+
+func userAddPersonUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] user add-person", os.Args[0])
+	fmt.Fprint(os.Stderr, " -body JSON")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `AddPerson implements addPerson.`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -body JSON: `)
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user add-person --body '{\n      \"age\": 868744758025898707,\n      \"email\": \"rahsaan@considine.biz\",\n      \"id\": 6799014544609854512,\n      \"mobileNo\": \"Blanditiis voluptatem distinctio sed.\",\n      \"name\": \"Praesentium harum laudantium illo consectetur ullam.\"\n   }'")
 }

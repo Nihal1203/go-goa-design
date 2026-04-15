@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -13,9 +14,16 @@ import (
 	userhttp "github.com/Nihal1203/go-goa-design/gen/http/user/server"
 	user "github.com/Nihal1203/go-goa-design/gen/user"
 	myuser "github.com/Nihal1203/go-goa-design/user"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func main() {
+	conn, err := pgx.Connect(context.Background(), "postgres://postgres:mypassword@localhost:5432/bank")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close(context.Background())
 	mux := goahttp.NewMuxer()
 
 	// ✅ CORS Middleware
@@ -28,7 +36,7 @@ func main() {
 	hellohttp.Mount(mux, helloHandler)
 
 	// USER
-	userSvc := &myuser.Service{}
+	userSvc := myuser.NewService(conn)
 	userEndpoints := user.NewEndpoints(userSvc)
 	userHandler := userhttp.New(userEndpoints, mux, goahttp.RequestDecoder, goahttp.ResponseEncoder, nil, nil)
 	userhttp.Mount(mux, userHandler)

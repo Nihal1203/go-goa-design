@@ -14,7 +14,9 @@ import (
 	"net/http"
 	"net/url"
 
+	user "github.com/Nihal1203/go-goa-design/gen/user"
 	goahttp "goa.design/goa/v3/http"
+	goa "goa.design/goa/v3/pkg"
 )
 
 // BuildGetUserRequest instantiates a HTTP request object with method and path
@@ -75,4 +77,161 @@ func DecodeGetUserResponse(decoder func(*http.Response) goahttp.Decoder, restore
 			return nil, goahttp.ErrInvalidResponse("user", "getUser", resp.StatusCode, string(body))
 		}
 	}
+}
+
+// BuildPrintPersonRequest instantiates a HTTP request object with method and
+// path set to call the "user" service "printPerson" endpoint
+func (c *Client) BuildPrintPersonRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: PrintPersonUserPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("user", "printPerson", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodePrintPersonRequest returns an encoder for requests sent to the user
+// printPerson server.
+func EncodePrintPersonRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*user.Person)
+		if !ok {
+			return goahttp.ErrInvalidType("user", "printPerson", "*user.Person", v)
+		}
+		body := NewPrintPersonRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("user", "printPerson", err)
+		}
+		return nil
+	}
+}
+
+// DecodePrintPersonResponse returns a decoder for responses returned by the
+// user printPerson endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+func DecodePrintPersonResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body map[int32]*PersonResponse
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("user", "printPerson", err)
+			}
+			for _, v := range body {
+				if v != nil {
+					if err2 := ValidatePersonResponse(v); err2 != nil {
+						err = goa.MergeErrors(err, err2)
+					}
+				}
+			}
+			if err != nil {
+				return nil, goahttp.ErrValidationError("user", "printPerson", err)
+			}
+			res := NewPrintPersonMapInt32PersonOK(body)
+			return res, nil
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("user", "printPerson", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildAddPersonRequest instantiates a HTTP request object with method and
+// path set to call the "user" service "addPerson" endpoint
+func (c *Client) BuildAddPersonRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AddPersonUserPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("user", "addPerson", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeAddPersonRequest returns an encoder for requests sent to the user
+// addPerson server.
+func EncodeAddPersonRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*user.Person)
+		if !ok {
+			return goahttp.ErrInvalidType("user", "addPerson", "*user.Person", v)
+		}
+		body := NewAddPersonRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("user", "addPerson", err)
+		}
+		return nil
+	}
+}
+
+// DecodeAddPersonResponse returns a decoder for responses returned by the user
+// addPerson endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+func DecodeAddPersonResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body []byte
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("user", "addPerson", err)
+			}
+			return body, nil
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("user", "addPerson", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// unmarshalPersonResponseToUserPerson builds a value of type *user.Person from
+// a value of type *PersonResponse.
+func unmarshalPersonResponseToUserPerson(v *PersonResponse) *user.Person {
+	res := &user.Person{
+		Name:     v.Name,
+		Age:      v.Age,
+		MobileNo: v.MobileNo,
+		Email:    v.Email,
+		ID:       v.ID,
+	}
+
+	return res
 }

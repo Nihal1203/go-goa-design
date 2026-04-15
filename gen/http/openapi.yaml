@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
     title: ""
     version: 0.0.1
-host: localhost:8080
+host: localhost:80
 consumes:
     - application/json
     - application/xml
@@ -12,6 +12,26 @@ produces:
     - application/xml
     - application/gob
 paths:
+    /add/person:
+        post:
+            tags:
+                - user
+            summary: addPerson user
+            operationId: user#addPerson
+            parameters:
+                - name: AddPersonRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/Person'
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        type: string
+                        format: byte
+            schemes:
+                - http
     /hello/{name}:
         get:
             tags:
@@ -29,6 +49,26 @@ paths:
                     description: OK response.
                     schema:
                         type: string
+            schemes:
+                - http
+    /printPerson:
+        post:
+            tags:
+                - user
+            summary: printPerson user
+            operationId: user#printPerson
+            parameters:
+                - name: PrintPersonRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/Person'
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        type: object
+                        additionalProperties: true
             schemes:
                 - http
     /user/{id}:
@@ -49,3 +89,32 @@ paths:
                         type: string
             schemes:
                 - http
+definitions:
+    Person:
+        title: Person
+        type: object
+        properties:
+            age:
+                type: integer
+                example: 5821947359301291492
+                format: int64
+            email:
+                type: string
+                example: mellie.legros@bahringer.net
+                format: email
+            id:
+                type: integer
+                example: 4127862052213228972
+                format: int64
+            mobileNo:
+                type: string
+                example: Esse qui quasi optio voluptates.
+            name:
+                type: string
+                example: Sit reprehenderit nostrum harum.
+        example:
+            age: 6531829287086741306
+            email: macey@macejkovic.info
+            id: 3655711690295293294
+            mobileNo: Illum facilis sit rerum sit voluptates ut.
+            name: Neque architecto dolore nisi libero.

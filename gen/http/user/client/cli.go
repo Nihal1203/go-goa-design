@@ -6,3 +6,54 @@
 // $ goa gen github.com/Nihal1203/go-goa-design/design
 
 package client
+
+import (
+	"encoding/json"
+	"fmt"
+
+	user "github.com/Nihal1203/go-goa-design/gen/user"
+)
+
+// BuildPrintPersonPayload builds the payload for the user printPerson endpoint
+// from CLI flags.
+func BuildPrintPersonPayload(userPrintPersonBody string) (*user.Person, error) {
+	var err error
+	var body PrintPersonRequestBody
+	{
+		err = json.Unmarshal([]byte(userPrintPersonBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"age\": 962588955710604653,\n      \"email\": \"eva@olsonkuhlman.com\",\n      \"id\": 7578785269693231749,\n      \"mobileNo\": \"Temporibus occaecati suscipit aspernatur.\",\n      \"name\": \"Quis aspernatur expedita molestias et iure neque.\"\n   }'")
+		}
+	}
+	v := &user.Person{
+		Name:     body.Name,
+		Age:      body.Age,
+		MobileNo: body.MobileNo,
+		Email:    body.Email,
+		ID:       body.ID,
+	}
+
+	return v, nil
+}
+
+// BuildAddPersonPayload builds the payload for the user addPerson endpoint
+// from CLI flags.
+func BuildAddPersonPayload(userAddPersonBody string) (*user.Person, error) {
+	var err error
+	var body AddPersonRequestBody
+	{
+		err = json.Unmarshal([]byte(userAddPersonBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"age\": 868744758025898707,\n      \"email\": \"rahsaan@considine.biz\",\n      \"id\": 6799014544609854512,\n      \"mobileNo\": \"Blanditiis voluptatem distinctio sed.\",\n      \"name\": \"Praesentium harum laudantium illo consectetur ullam.\"\n   }'")
+		}
+	}
+	v := &user.Person{
+		Name:     body.Name,
+		Age:      body.Age,
+		MobileNo: body.MobileNo,
+		Email:    body.Email,
+		ID:       body.ID,
+	}
+
+	return v, nil
+}

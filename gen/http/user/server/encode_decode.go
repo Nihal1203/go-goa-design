@@ -9,9 +9,13 @@ package server
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 
+	user "github.com/Nihal1203/go-goa-design/gen/user"
 	goahttp "goa.design/goa/v3/http"
+	goa "goa.design/goa/v3/pkg"
 )
 
 // EncodeGetUserResponse returns an encoder for responses returned by the user
@@ -41,4 +45,102 @@ func DecodeGetUserRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 
 		return payload, nil
 	}
+}
+
+// EncodePrintPersonResponse returns an encoder for responses returned by the
+// user printPerson endpoint.
+func EncodePrintPersonResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res, _ := v.(map[int32]*user.Person)
+		enc := encoder(ctx, w)
+		body := NewPrintPersonResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodePrintPersonRequest returns a decoder for requests sent to the user
+// printPerson endpoint.
+func DecodePrintPersonRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*user.Person, error) {
+	return func(r *http.Request) (*user.Person, error) {
+		var payload *user.Person
+		var (
+			body PrintPersonRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return payload, goa.MissingPayloadError()
+			}
+			var gerr *goa.ServiceError
+			if errors.As(err, &gerr) {
+				return payload, gerr
+			}
+			return payload, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidatePrintPersonRequestBody(&body)
+		if err != nil {
+			return payload, err
+		}
+		payload = NewPrintPersonPerson(&body)
+
+		return payload, nil
+	}
+}
+
+// EncodeAddPersonResponse returns an encoder for responses returned by the
+// user addPerson endpoint.
+func EncodeAddPersonResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res, _ := v.([]byte)
+		enc := encoder(ctx, w)
+		body := res
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeAddPersonRequest returns a decoder for requests sent to the user
+// addPerson endpoint.
+func DecodeAddPersonRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*user.Person, error) {
+	return func(r *http.Request) (*user.Person, error) {
+		var payload *user.Person
+		var (
+			body AddPersonRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return payload, goa.MissingPayloadError()
+			}
+			var gerr *goa.ServiceError
+			if errors.As(err, &gerr) {
+				return payload, gerr
+			}
+			return payload, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateAddPersonRequestBody(&body)
+		if err != nil {
+			return payload, err
+		}
+		payload = NewAddPersonPerson(&body)
+
+		return payload, nil
+	}
+}
+
+// marshalUserPersonToPersonResponse builds a value of type *PersonResponse
+// from a value of type *user.Person.
+func marshalUserPersonToPersonResponse(v *user.Person) *PersonResponse {
+	res := &PersonResponse{
+		Name:     v.Name,
+		Age:      v.Age,
+		MobileNo: v.MobileNo,
+		Email:    v.Email,
+		ID:       v.ID,
+	}
+
+	return res
 }

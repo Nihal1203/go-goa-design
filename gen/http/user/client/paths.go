@@ -15,3 +15,13 @@ import (
 func GetUserUserPath(id string) string {
 	return fmt.Sprintf("/user/%v", id)
 }
+
+// PrintPersonUserPath returns the URL path to the user service printPerson HTTP endpoint.
+func PrintPersonUserPath() string {
+	return "/printPerson"
+}
+
+// AddPersonUserPath returns the URL path to the user service addPerson HTTP endpoint.
+func AddPersonUserPath() string {
+	return "/add/person"
+}

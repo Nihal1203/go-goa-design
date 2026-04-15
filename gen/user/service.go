@@ -15,6 +15,10 @@ import (
 type Service interface {
 	// GetUser implements getUser.
 	GetUser(context.Context, string) (res string, err error)
+	// PrintPerson implements printPerson.
+	PrintPerson(context.Context, *Person) (res map[int32]*Person, err error)
+	// AddPerson implements addPerson.
+	AddPerson(context.Context, *Person) (res []byte, err error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -31,4 +35,13 @@ const ServiceName = "user"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [1]string{"getUser"}
+var MethodNames = [3]string{"getUser", "printPerson", "addPerson"}
+
+// Person is the payload type of the user service printPerson method.
+type Person struct {
+	Name     *string
+	Age      *int64
+	MobileNo *string
+	Email    *string
+	ID       *int64
+}

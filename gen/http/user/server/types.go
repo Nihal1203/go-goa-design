@@ -6,3 +6,100 @@
 // $ goa gen github.com/Nihal1203/go-goa-design/design
 
 package server
+
+import (
+	user "github.com/Nihal1203/go-goa-design/gen/user"
+	goa "goa.design/goa/v3/pkg"
+)
+
+// PrintPersonRequestBody is the type of the "user" service "printPerson"
+// endpoint HTTP request body.
+type PrintPersonRequestBody struct {
+	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Age      *int64  `form:"age,omitempty" json:"age,omitempty" xml:"age,omitempty"`
+	MobileNo *string `form:"mobileNo,omitempty" json:"mobileNo,omitempty" xml:"mobileNo,omitempty"`
+	Email    *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	ID       *int64  `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// AddPersonRequestBody is the type of the "user" service "addPerson" endpoint
+// HTTP request body.
+type AddPersonRequestBody struct {
+	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Age      *int64  `form:"age,omitempty" json:"age,omitempty" xml:"age,omitempty"`
+	MobileNo *string `form:"mobileNo,omitempty" json:"mobileNo,omitempty" xml:"mobileNo,omitempty"`
+	Email    *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	ID       *int64  `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// PrintPersonResponseBody is the type of the "user" service "printPerson"
+// endpoint HTTP response body.
+type PrintPersonResponseBody map[int32]*PersonResponse
+
+// PersonResponse is used to define fields on response body types.
+type PersonResponse struct {
+	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Age      *int64  `form:"age,omitempty" json:"age,omitempty" xml:"age,omitempty"`
+	MobileNo *string `form:"mobileNo,omitempty" json:"mobileNo,omitempty" xml:"mobileNo,omitempty"`
+	Email    *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	ID       *int64  `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// NewPrintPersonResponseBody builds the HTTP response body from the result of
+// the "printPerson" endpoint of the "user" service.
+func NewPrintPersonResponseBody(res map[int32]*user.Person) PrintPersonResponseBody {
+	body := make(map[int32]*PersonResponse, len(res))
+	for key, val := range res {
+		tk := key
+		if val == nil {
+			body[tk] = nil
+			continue
+		}
+		body[tk] = marshalUserPersonToPersonResponse(val)
+	}
+	return body
+}
+
+// NewPrintPersonPerson builds a user service printPerson endpoint payload.
+func NewPrintPersonPerson(body *PrintPersonRequestBody) *user.Person {
+	v := &user.Person{
+		Name:     body.Name,
+		Age:      body.Age,
+		MobileNo: body.MobileNo,
+		Email:    body.Email,
+		ID:       body.ID,
+	}
+
+	return v
+}
+
+// NewAddPersonPerson builds a user service addPerson endpoint payload.
+func NewAddPersonPerson(body *AddPersonRequestBody) *user.Person {
+	v := &user.Person{
+		Name:     body.Name,
+		Age:      body.Age,
+		MobileNo: body.MobileNo,
+		Email:    body.Email,
+		ID:       body.ID,
+	}
+
+	return v
+}
+
+// ValidatePrintPersonRequestBody runs the validations defined on
+// PrintPersonRequestBody
+func ValidatePrintPersonRequestBody(body *PrintPersonRequestBody) (err error) {
+	if body.Email != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.email", *body.Email, goa.FormatEmail))
+	}
+	return
+}
+
+// ValidateAddPersonRequestBody runs the validations defined on
+// AddPersonRequestBody
+func ValidateAddPersonRequestBody(body *AddPersonRequestBody) (err error) {
+	if body.Email != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.email", *body.Email, goa.FormatEmail))
+	}
+	return
+}

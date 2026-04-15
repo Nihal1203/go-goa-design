@@ -15,13 +15,17 @@ import (
 
 // Client is the "user" service client.
 type Client struct {
-	GetUserEndpoint goa.Endpoint
+	GetUserEndpoint     goa.Endpoint
+	PrintPersonEndpoint goa.Endpoint
+	AddPersonEndpoint   goa.Endpoint
 }
 
 // NewClient initializes a "user" service client given the endpoints.
-func NewClient(getUser goa.Endpoint) *Client {
+func NewClient(getUser, printPerson, addPerson goa.Endpoint) *Client {
 	return &Client{
-		GetUserEndpoint: getUser,
+		GetUserEndpoint:     getUser,
+		PrintPersonEndpoint: printPerson,
+		AddPersonEndpoint:   addPerson,
 	}
 }
 
@@ -33,4 +37,24 @@ func (c *Client) GetUser(ctx context.Context, p string) (res string, err error) 
 		return
 	}
 	return ires.(string), nil
+}
+
+// PrintPerson calls the "printPerson" endpoint of the "user" service.
+func (c *Client) PrintPerson(ctx context.Context, p *Person) (res map[int32]*Person, err error) {
+	var ires any
+	ires, err = c.PrintPersonEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(map[int32]*Person), nil
+}
+
+// AddPerson calls the "addPerson" endpoint of the "user" service.
+func (c *Client) AddPerson(ctx context.Context, p *Person) (res []byte, err error) {
+	var ires any
+	ires, err = c.AddPersonEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.([]byte), nil
 }
