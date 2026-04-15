@@ -25,13 +25,13 @@ import (
 func UsageCommands() []string {
 	return []string{
 		"hello say-hello",
-		"user (get-user|get-person|add-person)",
+		"user (get-user|get-person|add-person|delete-person)",
 	}
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + " " + "hello say-hello --p \"Quod accusamus dicta blanditiis velit.\"" + "\n" +
+	return os.Args[0] + " " + "hello say-hello --p \"Dicta blanditiis velit totam hic.\"" + "\n" +
 		os.Args[0] + " " + "user get-user --p \"Est nihil velit.\"" + "\n" +
 		""
 }
@@ -61,6 +61,9 @@ func ParseEndpoint(
 
 		userAddPersonFlags    = flag.NewFlagSet("add-person", flag.ExitOnError)
 		userAddPersonBodyFlag = userAddPersonFlags.String("body", "REQUIRED", "")
+
+		userDeletePersonFlags  = flag.NewFlagSet("delete-person", flag.ExitOnError)
+		userDeletePersonIDFlag = userDeletePersonFlags.String("id", "REQUIRED", "")
 	)
 	helloFlags.Usage = helloUsage
 	helloSayHelloFlags.Usage = helloSayHelloUsage
@@ -69,6 +72,7 @@ func ParseEndpoint(
 	userGetUserFlags.Usage = userGetUserUsage
 	userGetPersonFlags.Usage = userGetPersonUsage
 	userAddPersonFlags.Usage = userAddPersonUsage
+	userDeletePersonFlags.Usage = userDeletePersonUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -122,6 +126,9 @@ func ParseEndpoint(
 			case "add-person":
 				epf = userAddPersonFlags
 
+			case "delete-person":
+				epf = userDeletePersonFlags
+
 			}
 
 		}
@@ -163,6 +170,9 @@ func ParseEndpoint(
 			case "add-person":
 				endpoint = c.AddPerson()
 				data, err = userc.BuildAddPersonPayload(*userAddPersonBodyFlag)
+			case "delete-person":
+				endpoint = c.DeletePerson()
+				data, err = userc.BuildDeletePersonPayload(*userDeletePersonIDFlag)
 			}
 		}
 	}
@@ -198,7 +208,7 @@ func helloSayHelloUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "hello say-hello --p \"Quod accusamus dicta blanditiis velit.\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "hello say-hello --p \"Dicta blanditiis velit totam hic.\"")
 }
 
 // userUsage displays the usage of the user command and its subcommands.
@@ -209,6 +219,7 @@ func userUsage() {
 	fmt.Fprintln(os.Stderr, `    get-user: GetUser implements getUser.`)
 	fmt.Fprintln(os.Stderr, `    get-person: GetPerson implements getPerson.`)
 	fmt.Fprintln(os.Stderr, `    add-person: AddPerson implements addPerson.`)
+	fmt.Fprintln(os.Stderr, `    delete-person: DeletePerson implements deletePerson.`)
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Additional help:")
 	fmt.Fprintf(os.Stderr, "    %s user COMMAND --help\n", os.Args[0])
@@ -265,4 +276,22 @@ func userAddPersonUsage() {
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
 	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user add-person --body '{\n      \"age\": 2257263325922318254,\n      \"email\": \"mathew.zemlak@bauch.org\",\n      \"id\": 2615149549583248290,\n      \"mobileNo\": \"Ut voluptatibus corporis ullam.\",\n      \"name\": \"Explicabo natus.\"\n   }'")
+}
+
+func userDeletePersonUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] user delete-person", os.Args[0])
+	fmt.Fprint(os.Stderr, " -id INT32")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `DeletePerson implements deletePerson.`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -id INT32: `)
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user delete-person --id 1748087393")
 }

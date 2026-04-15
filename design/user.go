@@ -15,31 +15,46 @@ var _ = Service("user", func() {
 	})
 
 	Method("getPerson", func() {
-		Payload(func(){
-			Field(1,"id",Int64)
+		Payload(func() {
+			Field(1, "id", Int64)
 			Required("id")
 		})
 		Result(Person)
 		HTTP(func() {
-			GET("/get/Person/{id}")
+			GET("/get/person/{id}")
 		})
 	})
 
 	Method("addPerson", func() {
-	Payload(Person)
-	Result(AddPersonResponse)
+		Payload(Person)
+		Result(AddPersonResponse)
 
-	Error("person_already_exists", PersonAlreadyExists)
-	Error("internal_error", InternalError)
+		Error("person_already_exists", PersonAlreadyExists)
+		Error("internal_error", InternalError)
 
-	HTTP(func() {
-		POST("/add/person")
+		HTTP(func() {
+			POST("/add/person")
 
-		Response(StatusOK) // success
-		Response("person_already_exists", StatusConflict)
-		Response("internal_error", StatusInternalServerError)
+			Response(StatusOK) // success
+			Response("person_already_exists", StatusConflict)
+			Response("internal_error", StatusInternalServerError)
+		})
 	})
-})
+
+	Method("deletePerson", func() {
+		Payload(func() {
+			Attribute("id", Int32)
+		})
+		Result(Boolean)
+		Error("internal_error", InternalError)
+
+		HTTP(func() {
+			DELETE("/delete/person/{id}")
+			Response(StatusOK)
+			Response("internal_error", StatusInternalServerError)
+
+		})
+	})
 })
 
 var Person = Type("Person", func() {

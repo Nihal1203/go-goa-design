@@ -19,6 +19,8 @@ type Service interface {
 	GetPerson(context.Context, *GetPersonPayload) (res *Person, err error)
 	// AddPerson implements addPerson.
 	AddPerson(context.Context, *Person) (res *AddPersonResponse, err error)
+	// DeletePerson implements deletePerson.
+	DeletePerson(context.Context, *DeletePersonPayload) (res bool, err error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -35,11 +37,17 @@ const ServiceName = "user"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [3]string{"getUser", "getPerson", "addPerson"}
+var MethodNames = [4]string{"getUser", "getPerson", "addPerson", "deletePerson"}
 
 // AddPersonResponse is the result type of the user service addPerson method.
 type AddPersonResponse struct {
 	Success bool
+}
+
+// DeletePersonPayload is the payload type of the user service deletePerson
+// method.
+type DeletePersonPayload struct {
+	ID *int32
 }
 
 // GetPersonPayload is the payload type of the user service getPerson method.

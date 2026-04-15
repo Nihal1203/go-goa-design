@@ -15,17 +15,19 @@ import (
 
 // Endpoints wraps the "user" service endpoints.
 type Endpoints struct {
-	GetUser   goa.Endpoint
-	GetPerson goa.Endpoint
-	AddPerson goa.Endpoint
+	GetUser      goa.Endpoint
+	GetPerson    goa.Endpoint
+	AddPerson    goa.Endpoint
+	DeletePerson goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "user" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		GetUser:   NewGetUserEndpoint(s),
-		GetPerson: NewGetPersonEndpoint(s),
-		AddPerson: NewAddPersonEndpoint(s),
+		GetUser:      NewGetUserEndpoint(s),
+		GetPerson:    NewGetPersonEndpoint(s),
+		AddPerson:    NewAddPersonEndpoint(s),
+		DeletePerson: NewDeletePersonEndpoint(s),
 	}
 }
 
@@ -34,6 +36,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.GetUser = m(e.GetUser)
 	e.GetPerson = m(e.GetPerson)
 	e.AddPerson = m(e.AddPerson)
+	e.DeletePerson = m(e.DeletePerson)
 }
 
 // NewGetUserEndpoint returns an endpoint function that calls the method
@@ -60,5 +63,14 @@ func NewAddPersonEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*Person)
 		return s.AddPerson(ctx, p)
+	}
+}
+
+// NewDeletePersonEndpoint returns an endpoint function that calls the method
+// "deletePerson" of service "user".
+func NewDeletePersonEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*DeletePersonPayload)
+		return s.DeletePerson(ctx, p)
 	}
 }

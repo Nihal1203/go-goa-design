@@ -53,3 +53,22 @@ func BuildAddPersonPayload(userAddPersonBody string) (*user.Person, error) {
 
 	return v, nil
 }
+
+// BuildDeletePersonPayload builds the payload for the user deletePerson
+// endpoint from CLI flags.
+func BuildDeletePersonPayload(userDeletePersonID string) (*user.DeletePersonPayload, error) {
+	var err error
+	var id int32
+	{
+		var v int64
+		v, err = strconv.ParseInt(userDeletePersonID, 10, 32)
+		id = int32(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for id, must be INT32")
+		}
+	}
+	v := &user.DeletePersonPayload{}
+	v.ID = &id
+
+	return v, nil
+}

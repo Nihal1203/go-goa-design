@@ -49,7 +49,39 @@ paths:
                                 $ref: '#/components/schemas/InternalError'
                             example:
                                 message: Ipsa praesentium harum laudantium illo.
-    /get/Person/{id}:
+    /delete/person/{id}:
+        delete:
+            tags:
+                - user
+            summary: deletePerson user
+            operationId: user#deletePerson
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    example: 995975500
+                    format: int32
+                  example: 896412966
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                type: boolean
+                                example: false
+                            example: true
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalError'
+                            example:
+                                message: Voluptatem distinctio sed impedit ut animi perspiciatis.
+    /get/person/{id}:
         get:
             tags:
                 - user
@@ -61,9 +93,9 @@ paths:
                   required: true
                   schema:
                     type: integer
-                    example: 8169631024068118047
+                    example: 2431109217946556351
                     format: int64
-                  example: 2379356149953142009
+                  example: 8605891096590157444
             responses:
                 "200":
                     description: OK response.
@@ -91,8 +123,8 @@ paths:
                   schema:
                     type: string
                     description: Name to greet
-                    example: Dolor est sint omnis voluptas.
-                  example: Saepe veniam rerum eius omnis.
+                    example: Nihil mollitia quia omnis.
+                  example: Quaerat recusandae molestiae.
             responses:
                 "200":
                     description: OK response.
@@ -101,8 +133,8 @@ paths:
                             schema:
                                 type: string
                                 description: A greeting message
-                                example: Iure ratione eaque.
-                            example: Eum nihil mollitia.
+                                example: Dolor est sint omnis voluptas.
+                            example: Nihil ab.
     /user/{id}:
         get:
             tags:
@@ -115,8 +147,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Omnis eveniet quaerat recusandae molestiae.
-                  example: Nihil ab.
+                    example: Veniam qui sed velit.
+                  example: Atque doloribus rerum.
             responses:
                 "200":
                     description: OK response.
@@ -124,8 +156,8 @@ paths:
                         application/json:
                             schema:
                                 type: string
-                                example: Est sed eum facere.
-                            example: Veniam qui sed velit.
+                                example: Saepe veniam rerum eius omnis.
+                            example: Consectetur cumque ut accusamus quod est.
 components:
     schemas:
         AddPersonResponse:
@@ -133,7 +165,7 @@ components:
             properties:
                 success:
                     type: boolean
-                    example: false
+                    example: true
             description: Add person success response
             example:
                 success: true
@@ -144,10 +176,10 @@ components:
             properties:
                 message:
                     type: string
-                    example: Incidunt ullam pariatur perspiciatis ea cupiditate aut.
+                    example: Iure ratione eaque.
             description: Internal server error
             example:
-                message: Sint laudantium et et voluptates eligendi quae.
+                message: Est sed eum facere.
             required:
                 - message
         Person:
@@ -155,38 +187,38 @@ components:
             properties:
                 age:
                     type: integer
-                    example: 5102190061941605345
+                    example: 2227103339985143109
                     format: int64
                 email:
                     type: string
-                    example: antoinette@armstrong.biz
+                    example: stan@mertz.org
                     format: email
                 id:
                     type: integer
-                    example: 3341138605895188869
+                    example: 1017838353071544882
                     format: int64
                 mobileNo:
                     type: string
-                    example: Et nemo nemo libero iste.
+                    example: Recusandae qui magnam odio possimus adipisci odio.
                 name:
                     type: string
-                    example: Voluptatem expedita ut voluptas molestiae ut voluptate.
+                    example: Beatae neque reprehenderit.
             description: Person struct
             example:
-                age: 1600021641059124980
-                email: summer@faheyokeefe.biz
-                id: 9014746181237509154
-                mobileNo: Nisi error aut.
-                name: Qui repudiandae officia nostrum qui quia facilis.
+                age: 7275379389700724179
+                email: madonna.gusikowski@morissettegislason.info
+                id: 8269625404649602084
+                mobileNo: Asperiores minus a.
+                name: Exercitationem fugiat suscipit quam dolore quia.
         PersonAlreadyExists:
             type: object
             properties:
                 message:
                     type: string
-                    example: Eius odio cupiditate.
+                    example: Cupiditate aut assumenda sint laudantium et.
             description: Person already exists
             example:
-                message: At aut.
+                message: Voluptates eligendi quae.
             required:
                 - message
 tags:

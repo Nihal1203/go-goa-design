@@ -85,11 +85,11 @@ func (u *Service) GetPerson(ctx context.Context, payload *userpackage.GetPersonP
 	query := `SELECT id, name, age, mobile_no, email FROM persons WHERE id=$1`
 
 	var (
-		id       int64
-		name     string
-		age      int64
-		mobile   string
-		email    string
+		id     int64
+		name   string
+		age    int64
+		mobile string
+		email  string
 	)
 
 	err := u.db.QueryRow(ctx, query, payload.ID).Scan(
@@ -120,4 +120,25 @@ func (u *Service) GetPerson(ctx context.Context, payload *userpackage.GetPersonP
 		MobileNo: &mobile,
 		Email:    &email,
 	}, nil
+}
+
+func (u *Service) DeletePerson(ctx context.Context, p *userpackage.DeletePersonPayload) (bool, error) {
+
+	query := `DELETE FROM persons WHERE id=$1`
+
+	cmdTag, err := u.db.Exec(ctx, query, p.ID)
+	if err != nil {
+		return false, &userpackage.InternalError{
+			Message: "something went wrong",
+		}
+	}
+
+	// check if row actually deleted
+	if cmdTag.RowsAffected() == 0 {
+		return false, &userpackage.InternalError{
+			Message: "person not found",
+		}
+	}
+
+	return true, nil
 }

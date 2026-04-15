@@ -29,6 +29,10 @@ type Client struct {
 	// endpoint.
 	AddPersonDoer goahttp.Doer
 
+	// DeletePerson Doer is the HTTP client used to make requests to the
+	// deletePerson endpoint.
+	DeletePersonDoer goahttp.Doer
+
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
 	RestoreResponseBody bool
@@ -52,6 +56,7 @@ func NewClient(
 		GetUserDoer:         doer,
 		GetPersonDoer:       doer,
 		AddPersonDoer:       doer,
+		DeletePersonDoer:    doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
@@ -117,6 +122,25 @@ func (c *Client) AddPerson() goa.Endpoint {
 		resp, err := c.AddPersonDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("user", "addPerson", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// DeletePerson returns an endpoint that makes HTTP requests to the user
+// service deletePerson server.
+func (c *Client) DeletePerson() goa.Endpoint {
+	var (
+		decodeResponse = DecodeDeletePersonResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildDeletePersonRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.DeletePersonDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("user", "deletePerson", err)
 		}
 		return decodeResponse(resp)
 	}

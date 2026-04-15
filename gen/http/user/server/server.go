@@ -18,10 +18,11 @@ import (
 
 // Server lists the user service endpoint HTTP handlers.
 type Server struct {
-	Mounts    []*MountPoint
-	GetUser   http.Handler
-	GetPerson http.Handler
-	AddPerson http.Handler
+	Mounts       []*MountPoint
+	GetUser      http.Handler
+	GetPerson    http.Handler
+	AddPerson    http.Handler
+	DeletePerson http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -52,12 +53,14 @@ func New(
 	return &Server{
 		Mounts: []*MountPoint{
 			{"GetUser", "GET", "/user/{id}"},
-			{"GetPerson", "GET", "/get/Person/{id}"},
+			{"GetPerson", "GET", "/get/person/{id}"},
 			{"AddPerson", "POST", "/add/person"},
+			{"DeletePerson", "DELETE", "/delete/person/{id}"},
 		},
-		GetUser:   NewGetUserHandler(e.GetUser, mux, decoder, encoder, errhandler, formatter),
-		GetPerson: NewGetPersonHandler(e.GetPerson, mux, decoder, encoder, errhandler, formatter),
-		AddPerson: NewAddPersonHandler(e.AddPerson, mux, decoder, encoder, errhandler, formatter),
+		GetUser:      NewGetUserHandler(e.GetUser, mux, decoder, encoder, errhandler, formatter),
+		GetPerson:    NewGetPersonHandler(e.GetPerson, mux, decoder, encoder, errhandler, formatter),
+		AddPerson:    NewAddPersonHandler(e.AddPerson, mux, decoder, encoder, errhandler, formatter),
+		DeletePerson: NewDeletePersonHandler(e.DeletePerson, mux, decoder, encoder, errhandler, formatter),
 	}
 }
 
@@ -69,6 +72,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.GetUser = m(s.GetUser)
 	s.GetPerson = m(s.GetPerson)
 	s.AddPerson = m(s.AddPerson)
+	s.DeletePerson = m(s.DeletePerson)
 }
 
 // MethodNames returns the methods served.
@@ -79,6 +83,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountGetUserHandler(mux, h.GetUser)
 	MountGetPersonHandler(mux, h.GetPerson)
 	MountAddPersonHandler(mux, h.AddPerson)
+	MountDeletePersonHandler(mux, h.DeletePerson)
 }
 
 // Mount configures the mux to serve the user endpoints.
@@ -148,7 +153,7 @@ func MountGetPersonHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/get/Person/{id}", f)
+	mux.Handle("GET", "/get/person/{id}", f)
 }
 
 // NewGetPersonHandler creates a HTTP handler which loads the HTTP request and
@@ -222,6 +227,59 @@ func NewAddPersonHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "addPerson")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "user")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
+// MountDeletePersonHandler configures the mux to serve the "user" service
+// "deletePerson" endpoint.
+func MountDeletePersonHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("DELETE", "/delete/person/{id}", f)
+}
+
+// NewDeletePersonHandler creates a HTTP handler which loads the HTTP request
+// and calls the "user" service "deletePerson" endpoint.
+func NewDeletePersonHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeDeletePersonRequest(mux, decoder)
+		encodeResponse = EncodeDeletePersonResponse(encoder)
+		encodeError    = EncodeDeletePersonError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "deletePerson")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "user")
 		payload, err := decodeRequest(r)
 		if err != nil {

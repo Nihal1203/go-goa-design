@@ -15,17 +15,19 @@ import (
 
 // Client is the "user" service client.
 type Client struct {
-	GetUserEndpoint   goa.Endpoint
-	GetPersonEndpoint goa.Endpoint
-	AddPersonEndpoint goa.Endpoint
+	GetUserEndpoint      goa.Endpoint
+	GetPersonEndpoint    goa.Endpoint
+	AddPersonEndpoint    goa.Endpoint
+	DeletePersonEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "user" service client given the endpoints.
-func NewClient(getUser, getPerson, addPerson goa.Endpoint) *Client {
+func NewClient(getUser, getPerson, addPerson, deletePerson goa.Endpoint) *Client {
 	return &Client{
-		GetUserEndpoint:   getUser,
-		GetPersonEndpoint: getPerson,
-		AddPersonEndpoint: addPerson,
+		GetUserEndpoint:      getUser,
+		GetPersonEndpoint:    getPerson,
+		AddPersonEndpoint:    addPerson,
+		DeletePersonEndpoint: deletePerson,
 	}
 }
 
@@ -61,4 +63,17 @@ func (c *Client) AddPerson(ctx context.Context, p *Person) (res *AddPersonRespon
 		return
 	}
 	return ires.(*AddPersonResponse), nil
+}
+
+// DeletePerson calls the "deletePerson" endpoint of the "user" service.
+// DeletePerson may return the following errors:
+//   - "internal_error" (type *InternalError)
+//   - error: internal error
+func (c *Client) DeletePerson(ctx context.Context, p *DeletePersonPayload) (res bool, err error) {
+	var ires any
+	ires, err = c.DeletePersonEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(bool), nil
 }

@@ -51,6 +51,12 @@ type AddPersonPersonAlreadyExistsResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 }
 
+// DeletePersonInternalErrorResponseBody is the type of the "user" service
+// "deletePerson" endpoint HTTP response body for the "internal_error" error.
+type DeletePersonInternalErrorResponseBody struct {
+	Message string `form:"message" json:"message" xml:"message"`
+}
+
 // NewGetPersonResponseBody builds the HTTP response body from the result of
 // the "getPerson" endpoint of the "user" service.
 func NewGetPersonResponseBody(res *user.Person) *GetPersonResponseBody {
@@ -91,6 +97,15 @@ func NewAddPersonPersonAlreadyExistsResponseBody(res *user.PersonAlreadyExists) 
 	return body
 }
 
+// NewDeletePersonInternalErrorResponseBody builds the HTTP response body from
+// the result of the "deletePerson" endpoint of the "user" service.
+func NewDeletePersonInternalErrorResponseBody(res *user.InternalError) *DeletePersonInternalErrorResponseBody {
+	body := &DeletePersonInternalErrorResponseBody{
+		Message: res.Message,
+	}
+	return body
+}
+
 // NewGetPersonPayload builds a user service getPerson endpoint payload.
 func NewGetPersonPayload(id int64) *user.GetPersonPayload {
 	v := &user.GetPersonPayload{}
@@ -108,6 +123,14 @@ func NewAddPersonPerson(body *AddPersonRequestBody) *user.Person {
 		Email:    body.Email,
 		ID:       body.ID,
 	}
+
+	return v
+}
+
+// NewDeletePersonPayload builds a user service deletePerson endpoint payload.
+func NewDeletePersonPayload(id int32) *user.DeletePersonPayload {
+	v := &user.DeletePersonPayload{}
+	v.ID = &id
 
 	return v
 }

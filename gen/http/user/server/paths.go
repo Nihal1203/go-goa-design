@@ -18,10 +18,15 @@ func GetUserUserPath(id string) string {
 
 // GetPersonUserPath returns the URL path to the user service getPerson HTTP endpoint.
 func GetPersonUserPath(id int64) string {
-	return fmt.Sprintf("/get/Person/%v", id)
+	return fmt.Sprintf("/get/person/%v", id)
 }
 
 // AddPersonUserPath returns the URL path to the user service addPerson HTTP endpoint.
 func AddPersonUserPath() string {
 	return "/add/person"
+}
+
+// DeletePersonUserPath returns the URL path to the user service deletePerson HTTP endpoint.
+func DeletePersonUserPath(id int32) string {
+	return fmt.Sprintf("/delete/person/%v", id)
 }

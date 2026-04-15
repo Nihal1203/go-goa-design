@@ -51,6 +51,12 @@ type AddPersonPersonAlreadyExistsResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 }
 
+// DeletePersonInternalErrorResponseBody is the type of the "user" service
+// "deletePerson" endpoint HTTP response body for the "internal_error" error.
+type DeletePersonInternalErrorResponseBody struct {
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+}
+
 // NewAddPersonRequestBody builds the HTTP request body from the payload of the
 // "addPerson" endpoint of the "user" service.
 func NewAddPersonRequestBody(p *user.Person) *AddPersonRequestBody {
@@ -108,6 +114,16 @@ func NewAddPersonPersonAlreadyExists(body *AddPersonPersonAlreadyExistsResponseB
 	return v
 }
 
+// NewDeletePersonInternalError builds a user service deletePerson endpoint
+// internal_error error.
+func NewDeletePersonInternalError(body *DeletePersonInternalErrorResponseBody) *user.InternalError {
+	v := &user.InternalError{
+		Message: *body.Message,
+	}
+
+	return v
+}
+
 // ValidateGetPersonResponseBody runs the validations defined on
 // GetPersonResponseBody
 func ValidateGetPersonResponseBody(body *GetPersonResponseBody) (err error) {
@@ -138,6 +154,15 @@ func ValidateAddPersonInternalErrorResponseBody(body *AddPersonInternalErrorResp
 // ValidateAddPersonPersonAlreadyExistsResponseBody runs the validations
 // defined on addPerson_person_already_exists_response_body
 func ValidateAddPersonPersonAlreadyExistsResponseBody(body *AddPersonPersonAlreadyExistsResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	return
+}
+
+// ValidateDeletePersonInternalErrorResponseBody runs the validations defined
+// on deletePerson_internal_error_response_body
+func ValidateDeletePersonInternalErrorResponseBody(body *DeletePersonInternalErrorResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

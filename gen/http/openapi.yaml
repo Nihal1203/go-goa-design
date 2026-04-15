@@ -45,7 +45,32 @@ paths:
                             - message
             schemes:
                 - http
-    /get/Person/{id}:
+    /delete/person/{id}:
+        delete:
+            tags:
+                - user
+            summary: deletePerson user
+            operationId: user#deletePerson
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  type: integer
+                  format: int32
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        type: boolean
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/InternalError'
+                        required:
+                            - message
+            schemes:
+                - http
+    /get/person/{id}:
         get:
             tags:
                 - user
@@ -108,7 +133,7 @@ definitions:
         properties:
             success:
                 type: boolean
-                example: false
+                example: true
         example:
             success: true
         required:
@@ -119,9 +144,9 @@ definitions:
         properties:
             message:
                 type: string
-                example: Ut illum facilis.
+                example: Voluptatem expedita ut voluptas molestiae ut voluptate.
         example:
-            message: Rerum sit voluptates ut accusamus ea.
+            message: Iste et nemo nemo libero iste.
         required:
             - message
     Person:
@@ -130,36 +155,36 @@ definitions:
         properties:
             age:
                 type: integer
-                example: 7818860409680168664
+                example: 7360693971388168810
                 format: int64
             email:
                 type: string
-                example: maybell@waelchi.name
+                example: maye@lowe.com
                 format: email
             id:
                 type: integer
-                example: 4731629824481118165
+                example: 4755712726350755731
                 format: int64
             mobileNo:
                 type: string
-                example: Animi perspiciatis aliquid assumenda voluptatem nemo ipsam.
+                example: Fugit dolore.
             name:
                 type: string
-                example: Ullam non magni blanditiis voluptatem distinctio sed.
+                example: Assumenda voluptatem.
         example:
-            age: 7320816530833862789
-            email: zaria@vonhodkiewicz.com
-            id: 1414596679315104710
-            mobileNo: Harum unde.
-            name: Quas sit.
+            age: 4921722841199804186
+            email: osbaldo.bahringer@kutch.name
+            id: 6325081144157357547
+            mobileNo: Voluptates assumenda ut ratione.
+            name: Nostrum harum unde eaque esse qui.
     PersonAlreadyExists:
         title: PersonAlreadyExists
         type: object
         properties:
             message:
                 type: string
-                example: Velit ex.
+                example: Ut illum facilis.
         example:
-            message: Neque architecto dolore nisi libero.
+            message: Rerum sit voluptates ut accusamus ea.
         required:
             - message
