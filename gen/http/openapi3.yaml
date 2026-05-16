@@ -6,6 +6,52 @@ servers:
     - url: http://localhost:80
       description: Default server for hello
 paths:
+    /add/borrower:
+        post:
+            tags:
+                - Nihal
+            summary: AddBorrower Nihal
+            operationId: Nihal#AddBorrower
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Borrower'
+                        example:
+                            Address: Consequuntur voluptatem.
+                            Age: 194336580
+                            Email: porter@hyatt.net
+                            FirstName: Consequatur deleniti dolores omnis earum reprehenderit nobis.
+                            LastName: Velit nesciunt ratione ut tempore.
+            responses:
+                "201":
+                    description: Created response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AddBorrowerResponseBody'
+                            example:
+                                message: Aut magni et.
+                                statusCode: 1258516434
+                "409":
+                    description: 'borrower_already_exists: Borrower Already Exists'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BorrowerExists'
+                            example:
+                                message: Possimus error eos explicabo.
+                                statusCode: 608886952
+                "500":
+                    description: 'internal_server_error: Internal Server Error'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InternalServerError'
+                            example:
+                                message: Ut laudantium.
+                                statusCode: 1455193962
     /add/person:
         post:
             tags:
@@ -19,11 +65,11 @@ paths:
                         schema:
                             $ref: '#/components/schemas/Person'
                         example:
-                            age: 2257263325922318254
-                            email: mathew.zemlak@bauch.org
-                            id: 2615149549583248290
-                            mobileNo: Ut voluptatibus corporis ullam.
-                            name: Explicabo natus.
+                            age: 1955397288620271366
+                            email: amina.grant@mayert.com
+                            id: 93879638177070859
+                            mobileNo: Laudantium quas et sint.
+                            name: Veritatis distinctio exercitationem eum culpa libero quia.
             responses:
                 "200":
                     description: OK response.
@@ -32,7 +78,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/AddPersonResponse'
                             example:
-                                success: true
+                                success: false
                 "409":
                     description: 'person_already_exists: Conflict response.'
                     content:
@@ -40,7 +86,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/PersonAlreadyExists'
                             example:
-                                message: Velit vel.
+                                message: Voluptate quaerat iste et.
                 "500":
                     description: 'internal_error: Internal Server Error response.'
                     content:
@@ -48,7 +94,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/InternalError'
                             example:
-                                message: Ipsa praesentium harum laudantium illo.
+                                message: Beatae neque reprehenderit.
     /delete/person/{id}:
         delete:
             tags:
@@ -61,9 +107,9 @@ paths:
                   required: true
                   schema:
                     type: integer
-                    example: 995975500
+                    example: 1522641470
                     format: int32
-                  example: 896412966
+                  example: 869017526
             responses:
                 "200":
                     description: OK response.
@@ -80,7 +126,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/InternalError'
                             example:
-                                message: Voluptatem distinctio sed impedit ut animi perspiciatis.
+                                message: Odio possimus adipisci odio alias iusto ex.
     /get/person/{id}:
         get:
             tags:
@@ -93,9 +139,9 @@ paths:
                   required: true
                   schema:
                     type: integer
-                    example: 2431109217946556351
+                    example: 2067019483129059509
                     format: int64
-                  example: 8605891096590157444
+                  example: 2107003392381672172
             responses:
                 "200":
                     description: OK response.
@@ -104,11 +150,11 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Person'
                             example:
-                                age: 7840472617875803217
-                                email: reymundo@schaden.net
-                                id: 5538063635154939231
-                                mobileNo: In dicta.
-                                name: Dolores maiores et ea delectus.
+                                age: 2975787112087696945
+                                email: xavier@streichhamill.com
+                                id: 2447996093059841075
+                                mobileNo: Perspiciatis ut sint totam.
+                                name: Rerum molestiae voluptatem veritatis omnis debitis.
     /hello/{name}:
         get:
             tags:
@@ -123,8 +169,8 @@ paths:
                   schema:
                     type: string
                     description: Name to greet
-                    example: Nihil mollitia quia omnis.
-                  example: Quaerat recusandae molestiae.
+                    example: Voluptatum sunt reprehenderit incidunt.
+                  example: Magni fugiat enim.
             responses:
                 "200":
                     description: OK response.
@@ -133,8 +179,8 @@ paths:
                             schema:
                                 type: string
                                 description: A greeting message
-                                example: Dolor est sint omnis voluptas.
-                            example: Nihil ab.
+                                example: Blanditiis quae enim vel reiciendis.
+                            example: Illum cum ipsam praesentium consectetur.
     /user/{id}:
         get:
             tags:
@@ -147,8 +193,8 @@ paths:
                   required: true
                   schema:
                     type: string
-                    example: Veniam qui sed velit.
-                  example: Atque doloribus rerum.
+                    example: Dolorem delectus.
+                  example: Dolorem voluptatem id.
             responses:
                 "200":
                     description: OK response.
@@ -156,10 +202,23 @@ paths:
                         application/json:
                             schema:
                                 type: string
-                                example: Saepe veniam rerum eius omnis.
-                            example: Consectetur cumque ut accusamus quod est.
+                                example: Cupiditate est impedit ea et reprehenderit.
+                            example: Et eius ut voluptas incidunt.
 components:
     schemas:
+        AddBorrowerResponseBody:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: Et repudiandae fugit iusto.
+                statusCode:
+                    type: integer
+                    example: 2079969023
+                    format: int32
+            example:
+                message: Et beatae nemo aut deleniti dolor ea.
+                statusCode: 1688601927
         AddPersonResponse:
             type: object
             properties:
@@ -171,15 +230,74 @@ components:
                 success: true
             required:
                 - success
+        Borrower:
+            type: object
+            properties:
+                Address:
+                    type: string
+                    example: Neque et repudiandae inventore.
+                Age:
+                    type: integer
+                    example: 2138411331
+                    format: int32
+                Email:
+                    type: string
+                    example: eulah_torphy@leannon.name
+                    format: email
+                FirstName:
+                    type: string
+                    example: Eaque voluptatibus error pariatur.
+                LastName:
+                    type: string
+                    example: In quas quos non rerum expedita.
+            description: Borrower struct
+            example:
+                Address: Veniam ea dolor nihil nobis.
+                Age: 507419938
+                Email: eldridge@mannfritsch.com
+                FirstName: Sit officia voluptas et illum inventore.
+                LastName: Et nobis corporis et blanditiis.
+        BorrowerExists:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: Laudantium est modi.
+                statusCode:
+                    type: integer
+                    example: 583284384
+                    format: int32
+            description: Borrower already exists
+            example:
+                message: Numquam et labore fuga tenetur.
+                statusCode: 602341328
+            required:
+                - message
         InternalError:
             type: object
             properties:
                 message:
                     type: string
-                    example: Iure ratione eaque.
+                    example: Voluptas quibusdam.
             description: Internal server error
             example:
-                message: Est sed eum facere.
+                message: Ratione in ratione odit rerum hic.
+            required:
+                - message
+        InternalServerError:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: Similique quidem harum.
+                statusCode:
+                    type: integer
+                    example: 187015769
+                    format: int32
+            description: Internal Server Error
+            example:
+                message: Cum rerum eaque blanditiis esse.
+                statusCode: 164817453
             required:
                 - message
         Person:
@@ -187,41 +305,42 @@ components:
             properties:
                 age:
                     type: integer
-                    example: 2227103339985143109
+                    example: 6435971086748120566
                     format: int64
                 email:
                     type: string
-                    example: stan@mertz.org
+                    example: modesto_kuhic@rosenbaumhoppe.name
                     format: email
                 id:
                     type: integer
-                    example: 1017838353071544882
+                    example: 2008558522769624262
                     format: int64
                 mobileNo:
                     type: string
-                    example: Recusandae qui magnam odio possimus adipisci odio.
+                    example: Et sapiente.
                 name:
                     type: string
-                    example: Beatae neque reprehenderit.
+                    example: Odio modi ea quis tenetur consequatur id.
             description: Person struct
             example:
-                age: 7275379389700724179
-                email: madonna.gusikowski@morissettegislason.info
-                id: 8269625404649602084
-                mobileNo: Asperiores minus a.
-                name: Exercitationem fugiat suscipit quam dolore quia.
+                age: 1036323478566261120
+                email: hazle@walsharmstrong.info
+                id: 2257915481117836109
+                mobileNo: Ut sint dolore recusandae blanditiis.
+                name: Architecto et.
         PersonAlreadyExists:
             type: object
             properties:
                 message:
                     type: string
-                    example: Cupiditate aut assumenda sint laudantium et.
+                    example: Voluptatem quisquam reprehenderit eius at et ratione.
             description: Person already exists
             example:
-                message: Voluptates eligendi quae.
+                message: Quis quasi non perferendis.
             required:
                 - message
 tags:
     - name: hello
       description: A simple service that says hello.
+    - name: Nihal
     - name: user

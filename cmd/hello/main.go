@@ -9,8 +9,11 @@ import (
 
 	hello "github.com/Nihal1203/go-goa-design/gen/hello"
 	hellohttp "github.com/Nihal1203/go-goa-design/gen/http/hello/server"
+	"github.com/Nihal1203/go-goa-design/gen/nihal"
 	myhello "github.com/Nihal1203/go-goa-design/hello"
+	nihalpkg "github.com/Nihal1203/go-goa-design/nihal"
 
+	nihalhttp "github.com/Nihal1203/go-goa-design/gen/http/nihal/server"
 	userhttp "github.com/Nihal1203/go-goa-design/gen/http/user/server"
 	user "github.com/Nihal1203/go-goa-design/gen/user"
 	myuser "github.com/Nihal1203/go-goa-design/user"
@@ -40,6 +43,11 @@ func main() {
 	userEndpoints := user.NewEndpoints(userSvc)
 	userHandler := userhttp.New(userEndpoints, mux, goahttp.RequestDecoder, goahttp.ResponseEncoder, nil, nil)
 	userhttp.Mount(mux, userHandler)
+
+	nihalSvc := nihalpkg.NewService(conn)
+	nihalEndpoints := nihal.NewEndpoints(nihalSvc)
+	nihalHandler := nihalhttp.New(nihalEndpoints, mux, goahttp.RequestDecoder, goahttp.ResponseEncoder, nil, nil)
+	nihalhttp.Mount(mux, nihalHandler)
 
 	log.Println("server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", handler)) // ✅ use handler not mux

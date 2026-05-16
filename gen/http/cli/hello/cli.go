@@ -14,6 +14,7 @@ import (
 	"os"
 
 	helloc "github.com/Nihal1203/go-goa-design/gen/http/hello/client"
+	nihalc "github.com/Nihal1203/go-goa-design/gen/http/nihal/client"
 	userc "github.com/Nihal1203/go-goa-design/gen/http/user/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
@@ -25,14 +26,16 @@ import (
 func UsageCommands() []string {
 	return []string{
 		"hello say-hello",
+		"nihal add-borrower",
 		"user (get-user|get-person|add-person|delete-person)",
 	}
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + " " + "hello say-hello --p \"Dicta blanditiis velit totam hic.\"" + "\n" +
-		os.Args[0] + " " + "user get-user --p \"Est nihil velit.\"" + "\n" +
+	return os.Args[0] + " " + "hello say-hello --p \"Aspernatur expedita molestias et iure neque voluptatem.\"" + "\n" +
+		os.Args[0] + " " + "nihal add-borrower --body '{\n      \"Address\": \"Consequuntur voluptatem.\",\n      \"Age\": 194336580,\n      \"Email\": \"porter@hyatt.net\",\n      \"FirstName\": \"Consequatur deleniti dolores omnis earum reprehenderit nobis.\",\n      \"LastName\": \"Velit nesciunt ratione ut tempore.\"\n   }'" + "\n" +
+		os.Args[0] + " " + "user get-user --p \"Vel distinctio et repellendus quis saepe.\"" + "\n" +
 		""
 }
 
@@ -51,6 +54,11 @@ func ParseEndpoint(
 		helloSayHelloFlags = flag.NewFlagSet("say-hello", flag.ExitOnError)
 		helloSayHelloPFlag = helloSayHelloFlags.String("p", "REQUIRED", "Name to greet")
 
+		nihalFlags = flag.NewFlagSet("nihal", flag.ContinueOnError)
+
+		nihalAddBorrowerFlags    = flag.NewFlagSet("add-borrower", flag.ExitOnError)
+		nihalAddBorrowerBodyFlag = nihalAddBorrowerFlags.String("body", "REQUIRED", "")
+
 		userFlags = flag.NewFlagSet("user", flag.ContinueOnError)
 
 		userGetUserFlags = flag.NewFlagSet("get-user", flag.ExitOnError)
@@ -67,6 +75,9 @@ func ParseEndpoint(
 	)
 	helloFlags.Usage = helloUsage
 	helloSayHelloFlags.Usage = helloSayHelloUsage
+
+	nihalFlags.Usage = nihalUsage
+	nihalAddBorrowerFlags.Usage = nihalAddBorrowerUsage
 
 	userFlags.Usage = userUsage
 	userGetUserFlags.Usage = userGetUserUsage
@@ -91,6 +102,8 @@ func ParseEndpoint(
 		switch svcn {
 		case "hello":
 			svcf = helloFlags
+		case "nihal":
+			svcf = nihalFlags
 		case "user":
 			svcf = userFlags
 		default:
@@ -112,6 +125,13 @@ func ParseEndpoint(
 			switch epn {
 			case "say-hello":
 				epf = helloSayHelloFlags
+
+			}
+
+		case "nihal":
+			switch epn {
+			case "add-borrower":
+				epf = nihalAddBorrowerFlags
 
 			}
 
@@ -157,6 +177,13 @@ func ParseEndpoint(
 			case "say-hello":
 				endpoint = c.SayHello()
 				data = *helloSayHelloPFlag
+			}
+		case "nihal":
+			c := nihalc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "add-borrower":
+				endpoint = c.AddBorrower()
+				data, err = nihalc.BuildAddBorrowerPayload(*nihalAddBorrowerBodyFlag)
 			}
 		case "user":
 			c := userc.NewClient(scheme, host, doer, enc, dec, restore)
@@ -208,7 +235,35 @@ func helloSayHelloUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "hello say-hello --p \"Dicta blanditiis velit totam hic.\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "hello say-hello --p \"Aspernatur expedita molestias et iure neque voluptatem.\"")
+}
+
+// nihalUsage displays the usage of the nihal command and its subcommands.
+func nihalUsage() {
+	fmt.Fprintln(os.Stderr, `Service is the Nihal service interface.`)
+	fmt.Fprintf(os.Stderr, "Usage:\n    %s [globalflags] nihal COMMAND [flags]\n\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "COMMAND:")
+	fmt.Fprintln(os.Stderr, `    add-borrower: AddBorrower implements AddBorrower.`)
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Additional help:")
+	fmt.Fprintf(os.Stderr, "    %s nihal COMMAND --help\n", os.Args[0])
+}
+func nihalAddBorrowerUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] nihal add-borrower", os.Args[0])
+	fmt.Fprint(os.Stderr, " -body JSON")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `AddBorrower implements AddBorrower.`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -body JSON: `)
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "nihal add-borrower --body '{\n      \"Address\": \"Consequuntur voluptatem.\",\n      \"Age\": 194336580,\n      \"Email\": \"porter@hyatt.net\",\n      \"FirstName\": \"Consequatur deleniti dolores omnis earum reprehenderit nobis.\",\n      \"LastName\": \"Velit nesciunt ratione ut tempore.\"\n   }'")
 }
 
 // userUsage displays the usage of the user command and its subcommands.
@@ -239,7 +294,7 @@ func userGetUserUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user get-user --p \"Est nihil velit.\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user get-user --p \"Vel distinctio et repellendus quis saepe.\"")
 }
 
 func userGetPersonUsage() {
@@ -257,7 +312,7 @@ func userGetPersonUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user get-person --id 2887792033795512779")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user get-person --id 4687370155332530717")
 }
 
 func userAddPersonUsage() {
@@ -275,7 +330,7 @@ func userAddPersonUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user add-person --body '{\n      \"age\": 2257263325922318254,\n      \"email\": \"mathew.zemlak@bauch.org\",\n      \"id\": 2615149549583248290,\n      \"mobileNo\": \"Ut voluptatibus corporis ullam.\",\n      \"name\": \"Explicabo natus.\"\n   }'")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user add-person --body '{\n      \"age\": 1955397288620271366,\n      \"email\": \"amina.grant@mayert.com\",\n      \"id\": 93879638177070859,\n      \"mobileNo\": \"Laudantium quas et sint.\",\n      \"name\": \"Veritatis distinctio exercitationem eum culpa libero quia.\"\n   }'")
 }
 
 func userDeletePersonUsage() {
@@ -293,5 +348,5 @@ func userDeletePersonUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user delete-person --id 1748087393")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "user delete-person --id 1206780725")
 }
